@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+
+const SERVER_URL = "https://task4-backend.onrender.com"; // declare the server URL variable
 
 function Login({ setUserInfo }) {
   const navigate = useNavigate();
@@ -16,16 +19,18 @@ function Login({ setUserInfo }) {
     setLoading(true); 
     try {
       const response = await axios.post(
-        "http://localhost:5000/login",
+        `${SERVER_URL}/login`, // use the server URL variable
         {
           email,
           password,
         }
       );
       localStorage.setItem("token", response.data.token);
-      setLoading(false); 
-      setUserInfo(email); 
-      navigate("/dashboard");
+      setTimeout(() => {
+        setLoading(false); 
+        setUserInfo(email); 
+        navigate("/dashboard");
+      }, 3000); // wait 500ms before navigating
     } catch (error) {
       if (error.response && error.response.status === 401 && error.response.data.error === "Account blocked.") {
         setBlocked(true);
@@ -35,36 +40,50 @@ function Login({ setUserInfo }) {
       setLoading(false); 
     }
   };
+  
 
   return (
-    <div>
-      <h1>Login</h1>
-      {blocked && <p>Your account has been blocked. Please contact support.</p>}
-      {user && <p>Logged in as {user}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      {loading && <p>Loading...</p>} {/* display loading indicator */}
-      {error && <p>{error}</p>}
-      <Link to="/register">Create an account</Link>
-    </div>
+    <Container className="login-container">
+      <Row className="justify-content-center align-items-center">
+        <Col xs={12} sm={8} md={6} lg={4}>
+          <h1 className="text-center mb-4">Login</h1>
+          {blocked && (
+            <Alert variant="danger">
+              Your account has been blocked. Please contact support.
+            </Alert>
+          )}
+          {user && <p>Logged in as {user}</p>}
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="email">
+              <Form.Label>Email:</Form.Label>
+              <Form.Control
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="password">
+              <Form.Label>Password:</Form.Label>
+              <Form.Control
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit" className="w-100 mb-2">
+              Login
+            </Button>
+          </Form>
+          {loading && <p>Loading...</p>}
+          {error && <Alert variant="danger">{error}</Alert>}
+          <div className="text-center">
+            <Link to="/register">Create an account</Link>
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
+  
 }
 
 export default Login;

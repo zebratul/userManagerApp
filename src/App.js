@@ -5,6 +5,8 @@ import UserManagement from './UserManagement';
 import RegistrationForm from './RegistrationForm';
 import Navbar from './Navbar';
 import UserContext from './UserContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './CustomStyles.css';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -36,14 +38,15 @@ function App() {
     <UserContext.Provider value={user}>
       <Router>
         <div>
+
           <Routes>
             <Route path="/" element={<Login setUserInfo={setUser}/>} />
             <Route path="/register" element={<RegistrationForm />} />
             {token ? (
-              <Route path="/dashboard" element={<UserManagement onLogout={handleLogout}/>} />
-            ) : (
-              <Route path="/" replace />
-            )}
+              <Route path="/dashboard" element={<UserManagement handleLogout={handleLogout}/>} />
+              ) : (
+              <Route to="/" replace />
+              )}
             <Route path="*" element={<h1>Page not found</h1>} />
           </Routes>
         </div>
